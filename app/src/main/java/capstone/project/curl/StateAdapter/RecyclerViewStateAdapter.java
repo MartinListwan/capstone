@@ -1,10 +1,11 @@
-package capstone.project.curl;
+package capstone.project.curl.StateAdapter;
 
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.view.ViewGroup;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -30,7 +31,7 @@ public class RecyclerViewStateAdapter extends RecyclerViewAdapterWrapper {
     @State
     private int state = STATE_NORMAL;
 
-    public StatesRecyclerViewAdapter(@NonNull RecyclerView.Adapter wrapped, @Nullable View loadingView, @Nullable View emptyView, @Nullable View errorView) {
+    public RecyclerViewStateAdapter(@NonNull RecyclerView.Adapter wrapped, @Nullable View loadingView, @Nullable View emptyView, @Nullable View errorView) {
         super(wrapped);
         this.vLoadingView = loadingView;
         this.vEmptyView = emptyView;
