@@ -1,4 +1,4 @@
-package capstone.project.curl.StateAdapter;
+package capstone.project.curl.Models;
 
 public class TextMessageModel {
     public final String phoneNumber;

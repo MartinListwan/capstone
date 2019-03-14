@@ -150,8 +150,8 @@ For `NTB` you can set such parameters as:
  - active color:  
      allows you to set active icon color.
      
- - tab bar listener:  
-     allows you to set listener which triggering on start or on end when you set model index.
+ - tab bar smsOnReceiveListener:
+     allows you to set smsOnReceiveListener which triggering on start or on end when you set model index.
         
  - preview colors:  
      allows you to set preview colors, which generate count of models equals to count of colors.

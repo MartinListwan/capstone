@@ -2,19 +2,28 @@ package capstone.project.curl;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.telephony.SmsManager;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.util.LinkedList;
 import java.util.Queue;
 
-import capstone.project.curl.StateAdapter.TextMessageModel;
+import capstone.project.curl.Models.TextMessageModel;
 
 public class SendSms {
+
+    public static final String[] PERMISSIONS = {
+            Manifest.permission.RECEIVE_SMS,
+            Manifest.permission.READ_SMS,
+            android.Manifest.permission.SEND_SMS,
+    };
 
     private final Activity activity;
     Queue<TextMessageModel> textMessageModelQueue = new LinkedList<>();
@@ -34,11 +43,11 @@ public class SendSms {
             textMessageModelQueue.add(new TextMessageModel(phoneNo,textMessage));
         }
         if (Build.VERSION.SDK_INT >= 23) {
-            if (activity.checkSelfPermission(android.Manifest.permission.SEND_SMS)
+            if (activity.checkSelfPermission(Manifest.permission.READ_SMS)
                     == PackageManager.PERMISSION_GRANTED) {
                 sendSms();
             } else {
-                ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.SEND_SMS}, 0);
+                showRequestPermissionsInfoAlertDialog();
                 return false;
             }
         } else {
@@ -49,11 +58,53 @@ public class SendSms {
     }
 
     /**
+     * Displays an AlertDialog explaining the user why the SMS permission is going to be requests
+     */
+    public void showRequestPermissionsInfoAlertDialog() {
+        showRequestPermissionsInfoAlertDialog(true);
+    }
+
+    public void showRequestPermissionsInfoAlertDialog(final boolean makeSystemRequest) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setTitle("We need your permission to send & read texts!"); // Your own title
+        builder.setMessage("We send text messages to get information from our server. Our server is" +
+                " connected to the internet and it's how we provide services to you! :)"); // Your own message
+
+        builder.setPositiveButton("Sounds good!", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                // Display system runtime permission request?
+                if (makeSystemRequest) {
+                    if(!hasPermissions(activity, PERMISSIONS)){
+                        ActivityCompat.requestPermissions(activity, PERMISSIONS, 0);
+                    }
+                }
+            }
+        });
+
+        builder.setCancelable(false);
+        builder.show();
+    }
+
+    public static boolean hasPermissions(Context context, String... permissions) {
+        if (context != null && permissions != null) {
+            for (String permission : permissions) {
+                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
      * Starts runnables to send all of the text messages in our queue
      */
     private void sendSms(){
         synchronized (this){
-            for (TextMessageModel textMessageModel : textMessageModelQueue){
+            while (textMessageModelQueue.size() != 0){
+                TextMessageModel textMessageModel = textMessageModelQueue.poll();
                 SendTextMessagesRunnable sendTextMessagesRunnable = new SendTextMessagesRunnable(activity, textMessageModel);
                 new Thread(sendTextMessagesRunnable).start();
             }
@@ -63,7 +114,7 @@ public class SendSms {
     public void onRequestPermissionsResult(int requestCode, int[] grantResults) {
         switch (requestCode) {
 
-            case 0: {
+            case 0: { //  for Read SMS
 
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -98,7 +149,7 @@ public class SendSms {
             }
 
             if (maximumRetryCount <= 0){
-                Toast.makeText(activity, "Couldn't send text message :(", Toast.LENGTH_SHORT).show();
+                Log.d(SendSms.class.getName(), "Couldn't send the text message");
             }
         }
 
@@ -108,12 +159,10 @@ public class SendSms {
         public boolean sendSms(TextMessageModel textMessageModel) {
             try {
                 SmsManager smsManager = SmsManager.getDefault();
-
                 smsManager.sendTextMessage(textMessageModel.phoneNumber, null, textMessageModel.textMessage, null, null);
                 return true;
             } catch (Exception ex) {
-                Toast.makeText(activity, ex.getMessage().toString(),
-                        Toast.LENGTH_LONG).show();
+                Log.d(SendSms.class.getName(), ex.getMessage());
                 ex.printStackTrace();
                 return false;
             }

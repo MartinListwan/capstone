@@ -22,6 +22,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -101,6 +102,10 @@ public class MapsNavigationFragment extends Fragment {
         loadingView = getLayoutInflater().inflate(R.layout.loading, rv, false); // No loading view
         emptyView = getLayoutInflater().inflate(R.layout.directions_no_content, rv, false);
         errorView = getLayoutInflater().inflate(R.layout.directions_no_content, rv, false); // no empty state for now
+        ((TextView)(errorView.findViewById(R.id.textView2))).setText("We won't be able to provide any functionality until you give us SMS permissions");
+        ((TextView)(errorView.findViewById(R.id.textView))).setText("Why no permissions?");
+        ImageView imageView= (ImageView) errorView.findViewById(R.id.imageView2);
+        imageView.setImageResource(R.drawable.error);
         ArrayList<String> tempDirections = new ArrayList<>();
         tempDirections.add("go right");
         tempDirections.add("go righasd sad sad sad sa dsa dsat");
@@ -163,7 +168,17 @@ public class MapsNavigationFragment extends Fragment {
                     imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
                     recyclerViewStateAdapter.setState(RecyclerViewStateAdapter.STATE_LOADING);
 
-                    sendSms.sendSms("6474724006", navigationModes.get(currentNavigationMode).name + " " + originText.getText().toString() + " " + destinationText.getText().toString());
+                    String origin = originText.getText().toString();
+                    String dest = destinationText.getText().toString();
+                    if (origin.trim().equals("") || dest.trim().equals("")){
+                        Toast.makeText(getActivity(), String.format("Neither origin or destination can be empty"), Toast.LENGTH_LONG).show();
+                    }
+                    if (SendSms.hasPermissions(getContext(), SendSms.PERMISSIONS)){
+                        sendSms.sendSms("6474724006", navigationModes.get(currentNavigationMode).name + " " + origin + " " + dest);
+                    } else {
+                        recyclerViewStateAdapter.setState(RecyclerViewStateAdapter.STATE_ERROR);
+                        sendSms.showRequestPermissionsInfoAlertDialog();
+                    }
                     return true;
                 }
                 return false;
