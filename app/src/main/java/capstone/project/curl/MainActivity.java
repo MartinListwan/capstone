@@ -3,10 +3,12 @@ package capstone.project.curl;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Telephony;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -22,18 +24,27 @@ import android.widget.Toast;
 import devlight.io.library.ntb.NavigationTabBar;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends FragmentActivity implements SmsBroadcastReceiver.SmsOnReceiveListener {
 
     private SendSms sendSms;
     private FragmentCurlPagerAdapter pageAdapter;
+    private SmsBroadcastReceiver smsBroadcastReceiver;
+    private List<SmsBroadcastReceiver.SmsOnReceiveListener> fragments = new ArrayList<>();
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_horizontal_viewpager);
-        initUI();
         sendSms = new SendSms(this);
+        fragments.add(MapsNavigationFragment.newInstance(sendSms));
+        fragments.add(GoogleQuickAnswerFragment.newInstance());
+        fragments.add(WebBrowserFragment.newInstance("ThirdFragment, Instance 1", "Random"));
+        initUI();
+        smsBroadcastReceiver = new SmsBroadcastReceiver();
+        smsBroadcastReceiver.setSmsOnReceiveListener(this);
+        registerReceiver(smsBroadcastReceiver, new IntentFilter(Telephony.Sms.Intents.SMS_RECEIVED_ACTION));
     }
 
     private void initUI() {
@@ -93,6 +104,48 @@ public class MainActivity extends FragmentActivity {
         }, 500);
     }
 
+    // Todo DELETE THIS
+    public static String exampleMapText = "start_address:Paperbirch Crescent, London, ON N6G 1L7, Canada|end_address:Masonville Place Stop #1 - #1140, London, ON N6G 2N2, Canada|duration:55 mins|Walk to Masonville Place Stop #1 - #1140, London, ON N6G 2N2, Canada%55 mins%4.5 km|Head east on Paperbirch Crescent toward Rippleton Rd%1 min%4.5 km|Turn left onto Rippleton Rd%2 mins%87 m|Turn right onto Sarnia Rd%16 mins%0.2 km|Turn left%1 min%1.3 km|Turn right%1 min%24 m|Turn right toward Western Rd%1 min%0.1 km|Turn left toward Western Rd%1 min%6 m|Turn right toward Western Rd%1 min%85 m|Turn left onto Western Rd%23 mins%13 m|Slight left toward Richmond St%2 mins%1.9 km|Turn left onto Richmond St%7 mins%0.1 km|Turn right at Hillview Blvd%1 min%0.5 km|Turn left%1 min%63 m|";
+    @Override
+    public void onTextReceived(String text) {
+        Toast.makeText(this, text, Toast.LENGTH_LONG).show();
+        if (getWhichUseCaseTheDataWasFor(text) == 0){
+            fragments.get(0).onTextReceived(text);
+        } else if (getWhichUseCaseTheDataWasFor(text) == 1){
+            fragments.get(1).onTextReceived(text);
+        } else if (getWhichUseCaseTheDataWasFor(text) == 2){
+            fragments.get(1).onTextReceived(text);
+        }
+    }
+
+    private int getWhichUseCaseTheDataWasFor(String textMessage){
+        if (textMessage.contains("feature:" + SendSms.GOOGLE_MAPS)){
+            return 0;
+        } else if (textMessage.contains("feature:"+ SendSms.ANSWER_BOX)){
+            return 1;
+        } else if (textMessage.contains("feature:"+ SendSms.WEB_BROWSING)){
+            return 2;
+        } else {
+            Log.d("Martin unkown feature", textMessage);
+        }
+        return -1;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(smsBroadcastReceiver!=null)
+        {
+            unregisterReceiver(smsBroadcastReceiver);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        sendSms.onRequestPermissionsResult(requestCode,grantResults);
+    }
+
     /* PagerAdapter class */
     public class FragmentCurlPagerAdapter extends FragmentPagerAdapter {
         private final Activity activity;
@@ -111,12 +164,7 @@ public class MainActivity extends FragmentActivity {
             }
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
-            switch(position) {
-                case 0: return MapsNavigationFragment.newInstance(sendSms);
-                case 1: return GoogleQuickAnswerFragment.newInstance();
-                case 2: return WebBrowserFragment.newInstance("ThirdFragment, Instance 1", "Random");
-                default: return WebBrowserFragment.newInstance("Shouldn't exist", "shouldn't exist");
-            }
+            return (Fragment) fragments.get(position);
         }
 
         @Override
@@ -154,11 +202,5 @@ public class MainActivity extends FragmentActivity {
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
         }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        sendSms.onRequestPermissionsResult(requestCode,grantResults);
     }
 }

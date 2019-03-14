@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.provider.Telephony;
 import android.telephony.SmsMessage;
 import android.util.Log;
+import android.widget.Toast;
 
 /**
  * A broadcast receiver who listens for incoming SMS
@@ -31,6 +32,7 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
                 for (SmsMessage smsMessage : Telephony.Sms.Intents.getMessagesFromIntent(intent)) {
                     smsSender = smsMessage.getDisplayOriginatingAddress();
                     smsBody += smsMessage.getMessageBody();
+                    Log.e(TAG, smsBody + " : " + smsSender);
                 }
             } else {
                 Bundle smsBundle = intent.getExtras();
@@ -50,7 +52,8 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
                 }
             }
 
-            if (smsSender.equals(serviceProviderNumber) || smsSender.equals(testPhoneNumber)) {
+            // TODO, change this to equals
+            if (smsSender.contains(serviceProviderNumber) || smsSender.contains(testPhoneNumber)) {
                 if (smsOnReceiveListener != null) {
                     smsOnReceiveListener.onTextReceived(smsBody);
                 }
@@ -62,7 +65,7 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
         this.smsOnReceiveListener = smsOnReceiveListener;
     }
 
-    interface SmsOnReceiveListener {
+    public interface SmsOnReceiveListener {
         void onTextReceived(String text);
     }
 }

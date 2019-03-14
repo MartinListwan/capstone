@@ -19,6 +19,11 @@ import capstone.project.curl.Models.TextMessageModel;
 
 public class SendSms {
 
+    public static final String ANSWER_BOX = "answerbox";
+    public static final String GOOGLE_MAPS = "directions";
+    public static final String WEB_BROWSING = "smmry";
+
+
     public static final String[] PERMISSIONS = {
             Manifest.permission.RECEIVE_SMS,
             Manifest.permission.READ_SMS,
@@ -38,7 +43,8 @@ public class SendSms {
      * @param textMessage
      * @return
      */
-    public boolean sendSms(String phoneNo, String textMessage) {
+    public boolean sendSms(String phoneNo, String textMessage, String featureType) {
+        textMessage = featureType + "%" + textMessage;
         synchronized (this){
             textMessageModelQueue.add(new TextMessageModel(phoneNo,textMessage));
         }

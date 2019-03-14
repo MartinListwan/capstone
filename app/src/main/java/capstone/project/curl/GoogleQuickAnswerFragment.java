@@ -13,7 +13,7 @@ import android.view.ViewGroup;
  * Use the {@link GoogleQuickAnswerFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class GoogleQuickAnswerFragment extends Fragment {
+public class GoogleQuickAnswerFragment extends Fragment implements SmsBroadcastReceiver.SmsOnReceiveListener {
     private static final String TAG = GoogleQuickAnswerFragment.class.getCanonicalName();
 
     // TODO: Rename parameter arguments, choose names that match
@@ -47,4 +47,8 @@ public class GoogleQuickAnswerFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_google_quick_answer, container, false);
     }
 
+    @Override
+    public void onTextReceived(String text) {
+
+    }
 }

@@ -1,8 +1,12 @@
-package capstone.project.curl;
+package capstone.project.curl.Models.MapsApi;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
+
+import java.util.Arrays;
+
+import capstone.project.curl.MapsSmsParser;
 
 public class DirectionsMessage implements Parcelable {
     public String duration = "";
@@ -12,13 +16,12 @@ public class DirectionsMessage implements Parcelable {
 
     public DirectionsMessage(String unparsedDirection){
         try{
-            String [] partsOfDirections = unparsedDirection.split("#");
+            String [] partsOfDirections = unparsedDirection.split("%");
             if (partsOfDirections.length >= 3){
                 this.direction = partsOfDirections[0];
                 this.duration = partsOfDirections[1];
                 this.distance = partsOfDirections[2];
             } else {
-                Log.d(MapsSmsParser.class.getCanonicalName(), "Error while parsing direction: " + unparsedDirection);
                 errorWhileParsing = true;
             }
         } catch(Exception e){
@@ -60,4 +63,14 @@ public class DirectionsMessage implements Parcelable {
             return new DirectionsMessage[size];
         }
     };
+
+    @Override
+    public String toString() {
+        return "DirectionsMessage{" +
+                "duration='" + duration + '\'' +
+                ", direction='" + direction + '\'' +
+                ", distance='" + distance + '\'' +
+                ", errorWhileParsing=" + errorWhileParsing +
+                '}';
+    }
 }

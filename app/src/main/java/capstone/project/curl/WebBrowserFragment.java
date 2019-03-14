@@ -13,7 +13,7 @@ import android.view.ViewGroup;
  * Use the {@link WebBrowserFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class WebBrowserFragment extends Fragment {
+public class WebBrowserFragment extends Fragment implements SmsBroadcastReceiver.SmsOnReceiveListener {
     private static final String TAG = WebBrowserFragment.class.getCanonicalName();
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -63,4 +63,8 @@ public class WebBrowserFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_web_browser, container, false);
     }
 
+    @Override
+    public void onTextReceived(String text) {
+
+    }
 }

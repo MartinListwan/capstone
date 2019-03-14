@@ -29,11 +29,11 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-import capstone.project.curl.Models.Directions;
+import capstone.project.curl.Models.MapsApi.NavigationModel;
 import capstone.project.curl.StateAdapter.DirectionsAdapter;
 import capstone.project.curl.StateAdapter.RecyclerViewStateAdapter;
 import devlight.io.library.ntb.NavigationTabBar;
-public class MapsNavigationFragment extends Fragment {
+public class MapsNavigationFragment extends Fragment implements SmsBroadcastReceiver.SmsOnReceiveListener {
     private static final String TAG = MapsNavigationFragment.class.getCanonicalName();
     private static String NAGIVATION_TEXT = "";
     private static final int defaultNavigationModeIndex = 0;
@@ -45,6 +45,13 @@ public class MapsNavigationFragment extends Fragment {
     private DirectionsAdapter directionsAdapter;
     private RecyclerViewStateAdapter recyclerViewStateAdapter;
     private SendSms sendSms;
+    public static String origin = "ORIGIN";
+    public static String destinaiton = "DESTINATION";
+    public static String model = NavigationMode.class.getCanonicalName();
+    public static String stateAdapterState = "STATE_ADAPTER_STATE";
+    EditText originText;
+    private static NavigationModel navigationModel = new NavigationModel("No directions");
+    EditText destinationText;
 
     public MapsNavigationFragment() {
         // Required empty public constructor
@@ -53,24 +60,35 @@ public class MapsNavigationFragment extends Fragment {
     public static MapsNavigationFragment newInstance(SendSms sendSms) {
         MapsNavigationFragment fragment = new MapsNavigationFragment();
         fragment.sendSms = sendSms;
-        fragment.navigationModes = new ArrayList<>();
-        fragment.navigationModes.add(
-                new NavigationMode(R.drawable.outline_directions_walk_black_48dp, "walking"));
-        fragment.navigationModes.add(
-                new NavigationMode(R.drawable.outline_directions_bike_black_48dp, "bike"));
-        fragment.navigationModes.add(
-                new NavigationMode(R.drawable.outline_directions_car_black_48dp, "car"));
-        fragment.navigationModes.add(
-                new NavigationMode(R.drawable.outline_directions_bus_black_48dp, "bus"));
-        fragment.navigationModes.add(
-                new NavigationMode(R.drawable.outline_directions_railway_black_48dp, "railway"));
-        NAGIVATION_TEXT = fragment.navigationModes.get(defaultNavigationModeIndex).name;
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        navigationModes = new ArrayList<>();
+        navigationModes.add(
+                new NavigationMode(R.drawable.outline_directions_walk_black_48dp, "walking"));
+        navigationModes.add(
+                new NavigationMode(R.drawable.outline_directions_bike_black_48dp, "bicycling"));
+        navigationModes.add(
+                new NavigationMode(R.drawable.outline_directions_car_black_48dp, "driving"));
+        navigationModes.add(
+                new NavigationMode(R.drawable.outline_directions_bus_black_48dp, "transit"));
+        NAGIVATION_TEXT = navigationModes.get(defaultNavigationModeIndex).name;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        //Save the fragment's state here
+        outState.putString(origin, originText.getText().toString());
+        outState.putString(destinaiton, destinationText.getText().toString());
+        outState.putInt(stateAdapterState, recyclerViewStateAdapter.getState());
+        outState.putParcelable(model,navigationModel);
+        Toast.makeText(getActivity(), "Info saved", Toast.LENGTH_SHORT).show();
+
     }
 
     @Override
@@ -82,11 +100,28 @@ public class MapsNavigationFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        // TODO: LOAD THE DATA
 
         // Setup swap image view
         final ImageButton imageview = (ImageButton) getView().findViewById(R.id.swapButton);
-        final EditText originText = (EditText) getView().findViewById(R.id.your_location_text);
-        final EditText destinationText = (EditText) getView().findViewById(R.id.choose_destination_text);;
+        originText = (EditText) getView().findViewById(R.id.your_location_text);
+        destinationText = (EditText) getView().findViewById(R.id.choose_destination_text);
+        int adapterState = RecyclerViewStateAdapter.STATE_EMPTY;
+        if (!navigationModel.errorWhileParsing){
+            adapterState = RecyclerViewStateAdapter.STATE_NORMAL;
+        }
+
+        if (savedInstanceState != null){
+            Toast.makeText(getActivity(), "Info loaded", Toast.LENGTH_SHORT).show();
+            // Origin text
+            // Destination text
+            // Mode
+            originText.setText(savedInstanceState.getString(origin));
+            destinationText.setText(savedInstanceState.getString(destinaiton));
+            adapterState = savedInstanceState.getInt(stateAdapterState);
+            navigationModel = savedInstanceState.getParcelable(model);
+        }
+
         imageview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -102,28 +137,17 @@ public class MapsNavigationFragment extends Fragment {
         loadingView = getLayoutInflater().inflate(R.layout.loading, rv, false); // No loading view
         emptyView = getLayoutInflater().inflate(R.layout.directions_no_content, rv, false);
         errorView = getLayoutInflater().inflate(R.layout.directions_no_content, rv, false); // no empty state for now
+        // TODO: remove hard code
         ((TextView)(errorView.findViewById(R.id.textView2))).setText("We won't be able to provide any functionality until you give us SMS permissions");
         ((TextView)(errorView.findViewById(R.id.textView))).setText("Why no permissions?");
+        // TODO: Do this in XML or do both programmatically
         ImageView imageView= (ImageView) errorView.findViewById(R.id.imageView2);
         imageView.setImageResource(R.drawable.error);
-        ArrayList<String> tempDirections = new ArrayList<>();
-        tempDirections.add("go right");
-        tempDirections.add("go righasd sad sad sad sa dsa dsat");
-        tempDirections.add("go asdsad sadnsajdknsakd sadkhs adsa d sad sa ");
-        tempDirections.add("go right");
-        tempDirections.add("go righasd sad sad sad sa dsa dsat");
-        tempDirections.add("go asdsad sadnsajdknsakd sadkhs adsa d sad sa ");
-        tempDirections.add("go right");
-        tempDirections.add("go righasd sad sad sad sa dsa dsat");
-        tempDirections.add("go asdsad sadnsajdknsakd sadkhs adsa d sad sa ");
-        tempDirections.add("go right");
-        tempDirections.add("go righasd sad sad sad sa dsa dsat");
-        tempDirections.add("go asdsad sadnsajdknsakd sadkhs adsa d sad sa ");
-        Directions directions = new Directions(true,tempDirections);
-        directionsAdapter = new DirectionsAdapter(directions);
+
+        directionsAdapter = new DirectionsAdapter(navigationModel);
         recyclerViewStateAdapter = new RecyclerViewStateAdapter(directionsAdapter, loadingView, emptyView, errorView);
         rv.setAdapter(recyclerViewStateAdapter);
-        recyclerViewStateAdapter.setState(RecyclerViewStateAdapter.STATE_EMPTY);
+        recyclerViewStateAdapter.setState(adapterState);
         // rv.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
 
         // Setup modes of transportation navigation bar
@@ -144,12 +168,10 @@ public class MapsNavigationFragment extends Fragment {
             public void onStartTabSelected(final NavigationTabBar.Model model, final int index) {
                 Toast.makeText(getActivity(), String.format(navigationModes.get(index).name + " Selected"), Toast.LENGTH_SHORT).show();
                 currentNavigationMode = index;
-                recyclerViewStateAdapter.setState(RecyclerViewStateAdapter.STATE_NORMAL);
             }
 
             @Override
             public void onEndTabSelected(final NavigationTabBar.Model model, final int index) {
-                //Toast.makeText(getActivity(), String.format("onEndTabSelected #%d", index), Toast.LENGTH_SHORT).show();
                 navigationModels.get(0).setBadgeTitle("We have directions!");
             }
         });
@@ -161,6 +183,7 @@ public class MapsNavigationFragment extends Fragment {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 // After the search button is pressed in the soft keyboard while typing in editText
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    String mode = navigationModes.get(currentNavigationMode).name;
                     Toast.makeText(getActivity(), String.format("Search started " + navigationModes.get(currentNavigationMode).name), Toast.LENGTH_SHORT).show();
 
                     // Hide the keyboard
@@ -174,7 +197,10 @@ public class MapsNavigationFragment extends Fragment {
                         Toast.makeText(getActivity(), String.format("Neither origin or destination can be empty"), Toast.LENGTH_LONG).show();
                     }
                     if (SendSms.hasPermissions(getContext(), SendSms.PERMISSIONS)){
-                        sendSms.sendSms("6474724006", navigationModes.get(currentNavigationMode).name + " " + origin + " " + dest);
+                        String message = mode + "%" + origin + "%"  + dest;
+                        // sendSms.sendSms("2264065956", message, SendSms.GOOGLE_MAPS);
+                        sendSms.sendSms("6474724006", message, SendSms.GOOGLE_MAPS);
+
                     } else {
                         recyclerViewStateAdapter.setState(RecyclerViewStateAdapter.STATE_ERROR);
                         sendSms.showRequestPermissionsInfoAlertDialog();
@@ -184,6 +210,19 @@ public class MapsNavigationFragment extends Fragment {
                 return false;
             }
         });
+    }
+
+    @Override
+    public void onTextReceived(String text) {
+        // TODO: Add the result of the directions
+        navigationModel = MapsSmsParser.ParseSmsForNavigation(text);
+        directionsAdapter.setNavigationModel(navigationModel);
+        if (!navigationModel.errorWhileParsing){
+            recyclerViewStateAdapter.setState(RecyclerViewStateAdapter.STATE_NORMAL);
+        } else {
+            Toast.makeText(getActivity(), String.format("Problem retrieving directions, please retry :)"), Toast.LENGTH_LONG).show();
+            recyclerViewStateAdapter.setState(RecyclerViewStateAdapter.STATE_EMPTY);
+        }
     }
 
     private static class NavigationMode {

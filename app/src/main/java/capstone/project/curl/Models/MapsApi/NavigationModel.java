@@ -1,16 +1,28 @@
-package capstone.project.curl;
+package capstone.project.curl.Models.MapsApi;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
 public class NavigationModel implements Parcelable {
+    @Override
+    public String toString() {
+        return "NavigationModel{" +
+                "startingAddress='" + startingAddress + '\'' +
+                ", endAddress='" + endAddress + '\'' +
+                ", directionMessages=" + directionMessages +
+                ", errorWhileParsing=" + errorWhileParsing +
+                '}';
+    }
+
     public String startingAddress = "";
     public String endAddress = "";
-    public List<DirectionsMessage> directionMessages;
+    public List<DirectionsMessage> directionMessages =  new ArrayList<>();
     public boolean errorWhileParsing;
 
     private int startAdressIndex = 0;
@@ -18,14 +30,25 @@ public class NavigationModel implements Parcelable {
 
     public NavigationModel(String unparsedApiResponseForNavigation){
         try{
-            String [] deliminatedApiResponse = unparsedApiResponseForNavigation.split("|");
-            this.startingAddress = deliminatedApiResponse[startAdressIndex].substring(deliminatedApiResponse[startAdressIndex].indexOf("start_address:") + "start_address:".length() + 1);
-            this.endAddress = deliminatedApiResponse[endAddressIndex].substring(deliminatedApiResponse[endAddressIndex].indexOf("end_address:") + "end_address:".length() + 1);
+            Log.d("Martin", unparsedApiResponseForNavigation);
+            String [] deliminatedApiResponse = unparsedApiResponseForNavigation.split("\\|");
+            Log.d("Martin", Arrays.deepToString(deliminatedApiResponse));
+            this.startingAddress = deliminatedApiResponse[startAdressIndex].substring(deliminatedApiResponse[startAdressIndex].indexOf("start_address:") + "start_address:".length());
+            this.endAddress = deliminatedApiResponse[endAddressIndex].substring(deliminatedApiResponse[endAddressIndex].indexOf("end_address:") + "end_address:".length());
+
+            Log.d("Martin", "Sarted parsing addresses");
             for (int directionsIndex = endAddressIndex + 1; directionsIndex < deliminatedApiResponse.length;directionsIndex++){
-                DirectionsMessage directionsMessage = new DirectionsMessage(deliminatedApiResponse[directionsIndex]);
-                if (!directionsMessage.errorWhileParsing){
-                    directionMessages.add(directionsMessage);
+                try{
+                    DirectionsMessage specificDirection = new DirectionsMessage(deliminatedApiResponse[directionsIndex]);
+                    if (!specificDirection.errorWhileParsing){
+                        directionMessages.add(specificDirection);
+                    }
+                } catch(Exception e){
+                    e.printStackTrace();
                 }
+            }
+            if (this.directionMessages.size() == 0){
+                this.errorWhileParsing = true;
             }
         } catch(Exception e){
             this.errorWhileParsing = true;
