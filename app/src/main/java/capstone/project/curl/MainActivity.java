@@ -37,10 +37,17 @@ public class MainActivity extends FragmentActivity implements SmsBroadcastReceiv
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_horizontal_viewpager);
+        fragments = new ArrayList<>();
         sendSms = new SendSms(this);
-        fragments.add(MapsNavigationFragment.newInstance(sendSms));
-        fragments.add(GoogleQuickAnswerFragment.newInstance(sendSms));
-        fragments.add(WebBrowserFragment.newInstance("ThirdFragment, Instance 1", "Random"));
+        Fragment fragment = MapsNavigationFragment.newInstance(sendSms);
+        fragment.setRetainInstance(true);
+        fragments.add((SmsBroadcastReceiver.SmsOnReceiveListener) fragment);
+        fragment = GoogleQuickAnswerFragment.newInstance(sendSms);
+        fragment.setRetainInstance(true);
+        fragments.add((SmsBroadcastReceiver.SmsOnReceiveListener) fragment);
+        fragment = WebBrowserFragment.newInstance(sendSms);
+        fragment.setRetainInstance(true);
+        fragments.add((SmsBroadcastReceiver.SmsOnReceiveListener) fragment);
         initUI();
         smsBroadcastReceiver = new SmsBroadcastReceiver();
         smsBroadcastReceiver.setSmsOnReceiveListener(this);
@@ -78,13 +85,13 @@ public class MainActivity extends FragmentActivity implements SmsBroadcastReceiv
                         getResources().getDrawable(R.drawable.ic_third),
                         Color.parseColor(colors[2]))
 //                        .selectedIcon(getResources().getDrawable(R.drawable.ic_seventh))
-                        .title("Web Browser")
+                        .title("Website SMMRY")
                         .badgeTitle("state")
                         .build()
         );
 
         navigationTabBar.setModels(models);
-        navigationTabBar.setViewPager(viewPager, 2);
+        navigationTabBar.setViewPager(viewPager, 0);
         ExtendedViewPagerListener extendedViewPagerListener = new ExtendedViewPagerListener(this,navigationTabBar);
         navigationTabBar.setOnPageChangeListener(extendedViewPagerListener);
 
@@ -96,7 +103,7 @@ public class MainActivity extends FragmentActivity implements SmsBroadcastReceiv
                     navigationTabBar.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            model.showBadge();
+                            //model.showBadge();
                         }
                     }, i * 100);
                 }
@@ -108,13 +115,12 @@ public class MainActivity extends FragmentActivity implements SmsBroadcastReceiv
     public static String exampleMapText = "start_address:Paperbirch Crescent, London, ON N6G 1L7, Canada|end_address:Masonville Place Stop #1 - #1140, London, ON N6G 2N2, Canada|duration:55 mins|Walk to Masonville Place Stop #1 - #1140, London, ON N6G 2N2, Canada%55 mins%4.5 km|Head east on Paperbirch Crescent toward Rippleton Rd%1 min%4.5 km|Turn left onto Rippleton Rd%2 mins%87 m|Turn right onto Sarnia Rd%16 mins%0.2 km|Turn left%1 min%1.3 km|Turn right%1 min%24 m|Turn right toward Western Rd%1 min%0.1 km|Turn left toward Western Rd%1 min%6 m|Turn right toward Western Rd%1 min%85 m|Turn left onto Western Rd%23 mins%13 m|Slight left toward Richmond St%2 mins%1.9 km|Turn left onto Richmond St%7 mins%0.1 km|Turn right at Hillview Blvd%1 min%0.5 km|Turn left%1 min%63 m|";
     @Override
     public void onTextReceived(String text) {
-        Toast.makeText(this, text, Toast.LENGTH_LONG).show();
         if (getWhichUseCaseTheDataWasFor(text) == 0){
             fragments.get(0).onTextReceived(text);
         } else if (getWhichUseCaseTheDataWasFor(text) == 1){
             fragments.get(1).onTextReceived(text);
         } else if (getWhichUseCaseTheDataWasFor(text) == 2){
-            fragments.get(1).onTextReceived(text);
+            fragments.get(2).onTextReceived(text);
         }
     }
 
@@ -123,7 +129,7 @@ public class MainActivity extends FragmentActivity implements SmsBroadcastReceiv
             return 0;
         } else if (textMessage.contains("feature:"+ SendSms.ANSWER_BOX)){
             return 1;
-        } else if (textMessage.contains("feature:"+ SendSms.WEB_BROWSING)){
+        } else if (textMessage.contains("smmry") || textMessage.contains("Sent from your Twilio trial account - x")){
             return 2;
         } else {
             Log.d("Martin unkown feature", textMessage);

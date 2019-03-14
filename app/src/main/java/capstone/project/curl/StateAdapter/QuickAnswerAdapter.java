@@ -68,7 +68,15 @@ public class QuickAnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 stringBuilder.append(websiteQuickAnswer.URL).append(System.getProperty("line.separator")).append(websiteQuickAnswer.message).append(System.getProperty("line.separator"));
                 stringBuilder.append(System.getProperty("line.separator"));
             }
-            quickViewHolder.quickAnswerText.setText(stringBuilder.toString());
+            String answer = stringBuilder.toString();
+            if (answer.contains("feature:answerbox")){
+                try{
+                    answer = answer.split("feature:answerbox")[1];
+                } catch(Exception e){
+
+                }
+            }
+            quickViewHolder.quickAnswerText.setText(answer);
         } else{
             // TODO, make a loading view
             throw new IllegalStateException("Viewtype is unknown");

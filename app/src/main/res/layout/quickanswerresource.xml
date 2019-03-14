@@ -5,6 +5,9 @@
 
     <TextView
         android:layout_width="match_parent"
+        android:textIsSelectable="true"
+        android:textAlignment="center"
+        android:textSize="18sp"
         android:layout_height="match_parent"
         android:id="@+id/quick_answer_text"/>
 

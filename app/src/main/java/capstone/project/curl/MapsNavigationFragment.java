@@ -49,8 +49,9 @@ public class MapsNavigationFragment extends Fragment implements SmsBroadcastRece
     public static String destinaiton = "DESTINATION";
     public static String model = NavigationMode.class.getCanonicalName();
     public static String stateAdapterState = "STATE_ADAPTER_STATE";
+    public static int adapaterState = RecyclerViewStateAdapter.STATE_EMPTY;
     EditText originText;
-    private static NavigationModel navigationModel = new NavigationModel("No directions");
+    private static NavigationModel navigationModel = new NavigationModel("");
     EditText destinationText;
 
     public MapsNavigationFragment() {
@@ -85,7 +86,7 @@ public class MapsNavigationFragment extends Fragment implements SmsBroadcastRece
         //Save the fragment's state here
         outState.putString(origin, originText.getText().toString());
         outState.putString(destinaiton, destinationText.getText().toString());
-        outState.putInt(stateAdapterState, recyclerViewStateAdapter.getState());
+        outState.putInt(stateAdapterState, adapaterState);
         outState.putParcelable(model,navigationModel);
     }
 
@@ -104,19 +105,18 @@ public class MapsNavigationFragment extends Fragment implements SmsBroadcastRece
         final ImageButton imageview = (ImageButton) getView().findViewById(R.id.swapButton);
         originText = (EditText) getView().findViewById(R.id.your_location_text);
         destinationText = (EditText) getView().findViewById(R.id.choose_destination_text);
-        int adapterState = RecyclerViewStateAdapter.STATE_EMPTY;
         if (!navigationModel.errorWhileParsing){
-            adapterState = RecyclerViewStateAdapter.STATE_NORMAL;
+            adapaterState = RecyclerViewStateAdapter.STATE_NORMAL;
         }
 
         if (savedInstanceState != null){
-            Toast.makeText(getActivity(), "Info loaded", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getActivity(), "Info loaded", Toast.LENGTH_SHORT).show();
             // Origin text
             // Destination text
             // Mode
             originText.setText(savedInstanceState.getString(origin));
             destinationText.setText(savedInstanceState.getString(destinaiton));
-            adapterState = savedInstanceState.getInt(stateAdapterState);
+            adapaterState = savedInstanceState.getInt(stateAdapterState);
             navigationModel = savedInstanceState.getParcelable(model);
         }
 
@@ -145,7 +145,7 @@ public class MapsNavigationFragment extends Fragment implements SmsBroadcastRece
         directionsAdapter = new DirectionsAdapter(navigationModel);
         recyclerViewStateAdapter = new RecyclerViewStateAdapter(directionsAdapter, loadingView, emptyView, errorView);
         rv.setAdapter(recyclerViewStateAdapter);
-        recyclerViewStateAdapter.setState(adapterState);
+        recyclerViewStateAdapter.setState(adapaterState);
         // rv.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
 
         // Setup modes of transportation navigation bar
@@ -182,18 +182,20 @@ public class MapsNavigationFragment extends Fragment implements SmsBroadcastRece
                 // After the search button is pressed in the soft keyboard while typing in editText
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                     String mode = navigationModes.get(currentNavigationMode).name;
-                    Toast.makeText(getActivity(), String.format("Search started " + navigationModes.get(currentNavigationMode).name), Toast.LENGTH_SHORT).show();
-
-                    // Hide the keyboard
-                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
-                    recyclerViewStateAdapter.setState(RecyclerViewStateAdapter.STATE_LOADING);
+                    //Toast.makeText(getActivity(), String.format("Search started " + navigationModes.get(currentNavigationMode).name), Toast.LENGTH_SHORT).show();
 
                     String origin = originText.getText().toString();
                     String dest = destinationText.getText().toString();
+                    // Hide the keyboard
+                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
                     if (origin.trim().equals("") || dest.trim().equals("")){
                         Toast.makeText(getActivity(), String.format("Neither origin or destination can be empty"), Toast.LENGTH_LONG).show();
+                        recyclerViewStateAdapter.setState(RecyclerViewStateAdapter.STATE_EMPTY);
+                        return true;
                     }
+                    recyclerViewStateAdapter.setState(RecyclerViewStateAdapter.STATE_LOADING);
+
                     if (SendSms.hasPermissions(getContext(), SendSms.PERMISSIONS)){
                         String message = mode + "%" + origin + "%"  + dest;
                          sendSms.sendSms("2264065956", message, SendSms.GOOGLE_MAPS);

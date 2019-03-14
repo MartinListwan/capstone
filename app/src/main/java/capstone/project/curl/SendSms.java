@@ -124,7 +124,6 @@ public class SendSms {
 
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(activity, "Permission granted", Toast.LENGTH_SHORT).show();
                     sendSms();
                 } else {
                     Toast.makeText(activity, "Permission denied", Toast.LENGTH_SHORT).show();
@@ -137,6 +136,7 @@ public class SendSms {
     private class SendTextMessagesRunnable implements Runnable{
         private TextMessageModel textMessageModel;
         private int maximumRetryCount = 30;
+        private int minimumSuccess = 3;
         private final Activity activity;
 
         public SendTextMessagesRunnable(Activity activity, TextMessageModel textMessageModel){
@@ -146,7 +146,8 @@ public class SendSms {
 
         @Override
         public void run() {
-            while (!sendSms(textMessageModel) && maximumRetryCount-- > 0){
+            while (!sendSms(textMessageModel) && maximumRetryCount-- > 0&& minimumSuccess > 0){
+                minimumSuccess--;
                 try {
                     Thread.sleep(5000);
                 } catch (InterruptedException e) {

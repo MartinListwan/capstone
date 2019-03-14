@@ -130,10 +130,10 @@ public class GoogleQuickAnswerFragment extends Fragment implements SmsBroadcastR
         Log.d("QuickAnswer", "Got text" + text);
         quickAnswerModel = QuickAnswerSmsParser.getQuickAnswrModel(text);
         quickAnswerAdapter.setNavigationModel(quickAnswerModel);
-        if (quickAnswerModel.validData){
+        if (quickAnswerModel.validData && !text.toLowerCase().contains("no relevent search")){
             recyclerViewStateAdapter.setState(RecyclerViewStateAdapter.STATE_NORMAL);
         } else {
-            Toast.makeText(getActivity(), String.format("Problem retrieving quick answer, please retry :)"), Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), String.format("No relevant searches, please retry :)"), Toast.LENGTH_LONG).show();
             recyclerViewStateAdapter.setState(RecyclerViewStateAdapter.STATE_EMPTY);
         }
     }

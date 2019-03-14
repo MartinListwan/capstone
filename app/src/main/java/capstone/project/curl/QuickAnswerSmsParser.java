@@ -1,5 +1,4 @@
 package capstone.project.curl;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,8 +18,10 @@ public class QuickAnswerSmsParser {
 
                 for (String source : deliminatedSourced){
                     try{
-                        WebsiteQuickAnswer quickAnswer = new WebsiteQuickAnswer(source);
-                        websiteQuickAnswers.add(quickAnswer);
+                        if(source.contains("#")){
+                            WebsiteQuickAnswer quickAnswer = new WebsiteQuickAnswer(source);
+                            websiteQuickAnswers.add(quickAnswer);
+                        }
                     }catch (Exception e){
                         e.printStackTrace();
                     }
@@ -46,10 +47,9 @@ public class QuickAnswerSmsParser {
             public String URL;
             public String message;
             public WebsiteQuickAnswer(String delimatedAnswer){
-                int startOfUrl = delimatedAnswer.indexOf(":") + 1;
-                URL = delimatedAnswer.substring(startOfUrl,delimatedAnswer.trim().indexOf(" "));
-                int startOfBody = delimatedAnswer.indexOf(" ");
-                this.message = delimatedAnswer.substring(startOfBody + 1);
+                String[] strings = delimatedAnswer.split("#");
+                URL = strings[0];
+                this.message = strings[1];
             }
 
             @Override
