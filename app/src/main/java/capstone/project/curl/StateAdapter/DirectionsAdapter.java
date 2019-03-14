@@ -12,7 +12,7 @@ import java.util.List;
 import capstone.project.curl.Models.Directions;
 import capstone.project.curl.R;
 
-public class SimpleStringAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class DirectionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static int TYPE_DIRECTION = 1;
     private static int TYPE_LOADING = 2;
 
@@ -33,7 +33,7 @@ public class SimpleStringAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         }
     }
 
-    public SimpleStringAdapter(Directions directions) {
+    public DirectionsAdapter(Directions directions) {
         this.directions = directions;
     }
 
