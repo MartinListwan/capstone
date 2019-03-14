@@ -16,6 +16,7 @@ import capstone.project.curl.R;
 public class DirectionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static int TYPE_DIRECTION = 1;
     private static int TYPE_LOADING = 2;
+    private boolean hasShownorigin = false;
 
     private NavigationModel navigationModel;
 
@@ -69,7 +70,7 @@ public class DirectionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof DirectionViewHolder) {
             DirectionViewHolder directionViewHolder = (DirectionViewHolder) holder;
-            if (position == 0){
+            if (holder.getAdapterPosition() == 0 && position == 0 && false){
                 directionViewHolder.durationRow.setVisibility(View.GONE);
                 directionViewHolder.directionRow.setVisibility(View.GONE);
                 directionViewHolder.distanceRow.setVisibility(View.GONE);
@@ -77,10 +78,11 @@ public class DirectionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 directionViewHolder.destinationRow.setVisibility(View.VISIBLE);
                 directionViewHolder.originText.setText(navigationModel.startingAddress);
                 directionViewHolder.destinationText.setText(navigationModel.endAddress);
+                hasShownorigin = true;
             } else {
-                directionViewHolder.distanceValue.setText(navigationModel.directionMessages.get(position - 1).distance);
-                directionViewHolder.directionText.setText(navigationModel.directionMessages.get(position - 1).direction);
-                directionViewHolder.durationValue.setText(navigationModel.directionMessages.get(position - 1).duration);
+                directionViewHolder.distanceValue.setText(navigationModel.directionMessages.get(position).distance);
+                directionViewHolder.directionText.setText(navigationModel.directionMessages.get(position).direction);
+                directionViewHolder.durationValue.setText(navigationModel.directionMessages.get(position).duration);
             }
         } else{
             // TODO, make a loading view
@@ -91,7 +93,7 @@ public class DirectionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     @Override
     public int getItemCount() {
         if (!this.navigationModel.errorWhileParsing){
-            return this.navigationModel.directionMessages.size() + 1;
+            return this.navigationModel.directionMessages.size();
         } else {
             return 0;
         }
@@ -99,6 +101,7 @@ public class DirectionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     public void setNavigationModel(NavigationModel navigationModel){
         this.navigationModel = navigationModel;
+        hasShownorigin = false;
         notifyDataSetChanged();
     }
 

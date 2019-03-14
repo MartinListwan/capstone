@@ -87,8 +87,6 @@ public class MapsNavigationFragment extends Fragment implements SmsBroadcastRece
         outState.putString(destinaiton, destinationText.getText().toString());
         outState.putInt(stateAdapterState, recyclerViewStateAdapter.getState());
         outState.putParcelable(model,navigationModel);
-        Toast.makeText(getActivity(), "Info saved", Toast.LENGTH_SHORT).show();
-
     }
 
     @Override
@@ -198,8 +196,8 @@ public class MapsNavigationFragment extends Fragment implements SmsBroadcastRece
                     }
                     if (SendSms.hasPermissions(getContext(), SendSms.PERMISSIONS)){
                         String message = mode + "%" + origin + "%"  + dest;
-                        // sendSms.sendSms("2264065956", message, SendSms.GOOGLE_MAPS);
-                        sendSms.sendSms("6474724006", message, SendSms.GOOGLE_MAPS);
+                         sendSms.sendSms("2264065956", message, SendSms.GOOGLE_MAPS);
+                        //sendSms.sendSms("6474724006", message, SendSms.GOOGLE_MAPS);
 
                     } else {
                         recyclerViewStateAdapter.setState(RecyclerViewStateAdapter.STATE_ERROR);

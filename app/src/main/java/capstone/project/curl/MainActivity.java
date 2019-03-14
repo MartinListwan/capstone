@@ -39,7 +39,7 @@ public class MainActivity extends FragmentActivity implements SmsBroadcastReceiv
         setContentView(R.layout.activity_horizontal_viewpager);
         sendSms = new SendSms(this);
         fragments.add(MapsNavigationFragment.newInstance(sendSms));
-        fragments.add(GoogleQuickAnswerFragment.newInstance());
+        fragments.add(GoogleQuickAnswerFragment.newInstance(sendSms));
         fragments.add(WebBrowserFragment.newInstance("ThirdFragment, Instance 1", "Random"));
         initUI();
         smsBroadcastReceiver = new SmsBroadcastReceiver();
