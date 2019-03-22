@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -53,14 +54,17 @@ public class MapsNavigationFragment extends Fragment implements SmsBroadcastRece
     EditText originText;
     private static NavigationModel navigationModel = new NavigationModel("");
     EditText destinationText;
+    private GpsLocationTracker gpsLocationTracker;
+    private ImageView useGpsImage = null;
 
     public MapsNavigationFragment() {
         // Required empty public constructor
     }
 
-    public static MapsNavigationFragment newInstance(SendSms sendSms) {
+    public static MapsNavigationFragment newInstance(SendSms sendSms, GpsLocationTracker mGpsLocationTracker) {
         MapsNavigationFragment fragment = new MapsNavigationFragment();
         fragment.sendSms = sendSms;
+        fragment.gpsLocationTracker = mGpsLocationTracker;
         return fragment;
     }
 
@@ -105,9 +109,28 @@ public class MapsNavigationFragment extends Fragment implements SmsBroadcastRece
         final ImageButton imageview = (ImageButton) getView().findViewById(R.id.swapButton);
         originText = (EditText) getView().findViewById(R.id.your_location_text);
         destinationText = (EditText) getView().findViewById(R.id.choose_destination_text);
+        useGpsImage = (ImageView) getView().findViewById(R.id.imageView);
         if (!navigationModel.errorWhileParsing){
             adapaterState = RecyclerViewStateAdapter.STATE_NORMAL;
         }
+        useGpsImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try{
+                    if (gpsLocationTracker.hasPermission()){
+                        Toast.makeText(getActivity(), "Need location permissions", Toast.LENGTH_SHORT).show();
+                        gpsLocationTracker.requestPermissions();
+                    } else {
+                        Location location = gpsLocationTracker.getLocation();
+                        if (location != null){
+                            originText.setText(location.getLatitude() + " " + location.getLongitude());
+                        }
+                    }
+                } catch (Exception e){
+                    Log.d("Martin", "Exception while getting location");
+                }
+            }
+        });
 
         if (savedInstanceState != null){
             //Toast.makeText(getActivity(), "Info loaded", Toast.LENGTH_SHORT).show();

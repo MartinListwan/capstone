@@ -39,7 +39,7 @@ public class MainActivity extends FragmentActivity implements SmsBroadcastReceiv
         setContentView(R.layout.activity_horizontal_viewpager);
         fragments = new ArrayList<>();
         sendSms = new SendSms(this);
-        Fragment fragment = MapsNavigationFragment.newInstance(sendSms);
+        Fragment fragment = MapsNavigationFragment.newInstance(sendSms, new GpsLocationTracker(this,this));
         fragment.setRetainInstance(true);
         fragments.add((SmsBroadcastReceiver.SmsOnReceiveListener) fragment);
         fragment = GoogleQuickAnswerFragment.newInstance(sendSms);
@@ -150,6 +150,7 @@ public class MainActivity extends FragmentActivity implements SmsBroadcastReceiv
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
         sendSms.onRequestPermissionsResult(requestCode,grantResults);
+        Log.d("MArtin", "check if result code is 1" + requestCode);
     }
 
     /* PagerAdapter class */
