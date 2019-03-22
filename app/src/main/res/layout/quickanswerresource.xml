@@ -9,7 +9,6 @@
         android:textAlignment="center"
         android:textSize="18sp"
         android:layout_height="match_parent"
-        android:scrollbars="vertical"
         android:id="@+id/quick_answer_text"/>
 
 </android.support.v7.widget.CardView>

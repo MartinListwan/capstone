@@ -112,7 +112,8 @@ public class GoogleQuickAnswerFragment extends Fragment implements SmsBroadcastR
                     if (SendSms.hasPermissions(getContext(), SendSms.PERMISSIONS)){
                         String message = editText.getText().toString();
                         sendSms.sendSms("2264065956", message, SendSms.ANSWER_BOX);
-                        //sendSms.sendSms("6474724006", message, SendSms.GOOGLE_MAPS);
+
+                        //sendSms.sendSms("6474724006", message, SendSms.ANSWER_BOX);
 
                     } else {
                         recyclerViewStateAdapter.setState(RecyclerViewStateAdapter.STATE_ERROR);

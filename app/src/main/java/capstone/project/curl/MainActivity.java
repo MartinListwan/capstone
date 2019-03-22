@@ -127,7 +127,7 @@ public class MainActivity extends FragmentActivity implements SmsBroadcastReceiv
     private int getWhichUseCaseTheDataWasFor(String textMessage){
         if (textMessage.contains("feature:" + SendSms.GOOGLE_MAPS)){
             return 0;
-        } else if (textMessage.contains("feature:"+ SendSms.ANSWER_BOX)){
+        } else if (textMessage.contains("feature:"+ SendSms.ANSWER_BOX) || textMessage.contains("No relevent Search Results")){
             return 1;
         } else if (textMessage.contains("smmry") || textMessage.contains("Sent from your Twilio trial account - x")){
             return 2;

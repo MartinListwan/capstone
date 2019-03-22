@@ -123,7 +123,7 @@ public class MapsNavigationFragment extends Fragment implements SmsBroadcastRece
                     } else {
                         Location location = gpsLocationTracker.getLocation();
                         if (location != null){
-                            originText.setText(location.getLatitude() + " " + location.getLongitude());
+                            originText.setText(location.getLatitude() + ", " + location.getLongitude());
                         }
                     }
                 } catch (Exception e){
