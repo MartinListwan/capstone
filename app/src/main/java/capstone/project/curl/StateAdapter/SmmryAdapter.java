@@ -2,7 +2,9 @@ package capstone.project.curl.StateAdapter;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -47,6 +49,14 @@ public class SmmryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         if (holder instanceof SmryHolder) {
             SmryHolder quickViewHolder = (SmryHolder) holder;
             quickViewHolder.quickAnswerText.setText(smmry.toString());
+            quickViewHolder.quickAnswerText.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    v.getParent().requestDisallowInterceptTouchEvent(true);
+                    return false;
+                }
+            });
+            quickViewHolder.quickAnswerText.setMovementMethod(ScrollingMovementMethod.getInstance());
         } else{
             // TODO, make a loading view
             throw new IllegalStateException("Viewtype is unknown");
