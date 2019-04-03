@@ -77,8 +77,7 @@ public class QuickAnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 } catch(Exception e){
 
                 }
-            }]'
-            '
+            }
             if (answer.contains("Sent from your Twilio")){
                 answer = answer.substring(answer.indexOf("-") + 1);
             }

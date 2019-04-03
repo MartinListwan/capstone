@@ -19,18 +19,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import capstone.project.curl.StateAdapter.DirectionsAdapter;
 import capstone.project.curl.StateAdapter.QuickAnswerAdapter;
 import capstone.project.curl.StateAdapter.RecyclerViewStateAdapter;
 
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link GoogleQuickAnswerFragment#newInstance} factory method to
+ * Use the {@link QuickAnswerFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class GoogleQuickAnswerFragment extends Fragment implements SmsBroadcastReceiver.SmsOnReceiveListener {
-    private static final String TAG = GoogleQuickAnswerFragment.class.getCanonicalName();
+public class QuickAnswerFragment extends Fragment implements SmsBroadcastReceiver.SmsOnReceiveListener {
+    private static final String TAG = QuickAnswerFragment.class.getCanonicalName();
     private static QuickAnswerSmsParser.QuickAnswerModel quickAnswerModel = QuickAnswerSmsParser.getQuickAnswrModel("");
     private static int quickAnswerState = RecyclerViewStateAdapter.STATE_EMPTY;
     private View loadingView;
@@ -40,7 +39,7 @@ public class GoogleQuickAnswerFragment extends Fragment implements SmsBroadcastR
     private RecyclerViewStateAdapter recyclerViewStateAdapter;
     private SendSms sendSms;
     // TODO: Rename parameter arguments, choose names that match
-    public GoogleQuickAnswerFragment() {
+    public QuickAnswerFragment() {
         // Required empty public constructor
     }
 
@@ -50,11 +49,11 @@ public class GoogleQuickAnswerFragment extends Fragment implements SmsBroadcastR
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment GoogleQuickAnswerFragment.
+     * @return A new instance of fragment QuickAnswerFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static GoogleQuickAnswerFragment newInstance(SendSms sendSms) {
-        GoogleQuickAnswerFragment fragment = new GoogleQuickAnswerFragment();
+    public static QuickAnswerFragment newInstance(SendSms sendSms) {
+        QuickAnswerFragment fragment = new QuickAnswerFragment();
         fragment.sendSms = sendSms;
         return fragment;
     }
@@ -104,7 +103,7 @@ public class GoogleQuickAnswerFragment extends Fragment implements SmsBroadcastR
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 // After the search button is pressed in the soft keyboard while typing in editText
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    // Hide the keyboard
+                    // Hide the keyboard.
                     InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
                     recyclerViewStateAdapter.setState(RecyclerViewStateAdapter.STATE_LOADING);

@@ -1,25 +1,18 @@
 package capstone.project.curl;
 
-import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.Telephony;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
-import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Toast;
 
 import devlight.io.library.ntb.NavigationTabBar;
 
@@ -42,7 +35,7 @@ public class MainActivity extends FragmentActivity implements SmsBroadcastReceiv
         Fragment fragment = MapsNavigationFragment.newInstance(sendSms, new GpsLocationTracker(this,this));
         fragment.setRetainInstance(true);
         fragments.add((SmsBroadcastReceiver.SmsOnReceiveListener) fragment);
-        fragment = GoogleQuickAnswerFragment.newInstance(sendSms);
+        fragment = QuickAnswerFragment.newInstance(sendSms);
         fragment.setRetainInstance(true);
         fragments.add((SmsBroadcastReceiver.SmsOnReceiveListener) fragment);
         fragment = WebBrowserFragment.newInstance(sendSms);
@@ -111,8 +104,7 @@ public class MainActivity extends FragmentActivity implements SmsBroadcastReceiv
         }, 500);
     }
 
-    // Todo DELETE THIS
-    public static String exampleMapText = "start_address:Paperbirch Crescent, London, ON N6G 1L7, Canada|end_address:Masonville Place Stop #1 - #1140, London, ON N6G 2N2, Canada|duration:55 mins|Walk to Masonville Place Stop #1 - #1140, London, ON N6G 2N2, Canada%55 mins%4.5 km|Head east on Paperbirch Crescent toward Rippleton Rd%1 min%4.5 km|Turn left onto Rippleton Rd%2 mins%87 m|Turn right onto Sarnia Rd%16 mins%0.2 km|Turn left%1 min%1.3 km|Turn right%1 min%24 m|Turn right toward Western Rd%1 min%0.1 km|Turn left toward Western Rd%1 min%6 m|Turn right toward Western Rd%1 min%85 m|Turn left onto Western Rd%23 mins%13 m|Slight left toward Richmond St%2 mins%1.9 km|Turn left onto Richmond St%7 mins%0.1 km|Turn right at Hillview Blvd%1 min%0.5 km|Turn left%1 min%63 m|";
+
     @Override
     public void onTextReceived(String text) {
         if (getWhichUseCaseTheDataWasFor(text) == 0){
